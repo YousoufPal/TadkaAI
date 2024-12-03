@@ -1,12 +1,12 @@
 import './App.css';
 import React, { useState, useEffect, useRef } from 'react';
 
-const RecipeCard = (onSubmit) => {
+const RecipeCard = ({onSubmit}) => {
   const [ingredients, setIngredients] = useState([]);
-  const [mealType, setMealType] = useState("");
+  const [mealType, setMealType] = useState("Breakfast");
   const [cuisine, setCuisine] = useState("");
-  const [cookingTime, setCookingTime] = useState("");
-  const [complexity, setComplexity] = useState("");
+  const [cookingTime, setCookingTime] = useState("Less than 30 minutes");
+  const [complexity, setComplexity] = useState("Beginner");
 
 const handleSubmit = () => {
   const recipeData = {
@@ -16,7 +16,10 @@ const handleSubmit = () => {
     cookingTime,
     complexity,
   };
-}
+  if (onSubmit) {
+    onSubmit(recipeData); // Call the passed-in function with recipeData
+  }
+};
 
   return (
     <div className='w-[400px] border rounded-lg overflow-hidden shadow-lg'>
@@ -130,17 +133,49 @@ const handleSubmit = () => {
 function App() {
   const [recipeData, setRecipeData] = useState(null);
   const [recipeText, setRecipeText] = useState("");
+  let eventSourceRef = useRef(null)
+
+
+
+
+
+  useEffect(()=>{
+    if (recipeData) {
+       closeEventStream();
+       initialiseEventStream();
+    }
+  }, [recipeData])
+
+  const initialiseEventStream = () => {
+    const recipeInputs = {... recipeData};
+    const queryParams = new URLSearchParams(recipeInputs).toString();
+    const url = `http://localhost:8000/recipeStream?${queryParams}`;
+    eventSourceRef.current = new EventSource(url);
+    eventSourceRef.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if(data.action === "close") {
+        closeEventStream()
+      } else if(data.action === "chunk"){
+        setRecipeText((prev) => prev + data.chunk)
+      }
+    }
+
+
+  }
+
+  const closeEventStream = () => {
+    if (eventSourceRef.current) {
+
+    
+    eventSourceRef.current.close()
+    eventSourceRef.current = null
+    }
+  }
 
   async function onSubmit(data) {
     setRecipeText('')
     setRecipeData(data);
   } 
-
-  useEffect(()=>{
-    if (recipeData) {
-       
-    }
-  }, [recipeData])
 
 
   return (
