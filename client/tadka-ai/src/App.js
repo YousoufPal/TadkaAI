@@ -159,19 +159,16 @@ function App() {
 
   return (
     <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
-      <div className="container" style={{ maxWidth: "900px" }}>
-        <div className="row justify-content-center">
-          <div className="col-md-6 mb-4">
+      <div className="container">
+        <div className="recipe-container">
+          <div className="recipe-card">
             <RecipeCard onSubmit={onSubmit} />
           </div>
           <div
-            className="col-md-6 border rounded p-4 shadow-lg"
+            className="recipe-output"
             style={{
-              height: "500px",
-              overflowY: "auto",
               whiteSpace: "pre-wrap",
               fontFamily: "monospace",
-              backgroundColor: "#fff",
             }}
           >
             {recipeText}
