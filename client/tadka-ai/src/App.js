@@ -1,5 +1,6 @@
 import './App.css';
 import React, { useState, useEffect, useRef } from 'react';
+import Navbar from './components/Navbar';
 
 const RecipeCard = ({ onSubmit }) => {
   const [ingredients, setIngredients] = useState([]);
@@ -158,20 +159,23 @@ function App() {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
-      <div className="container">
-        <div className="recipe-container">
-          <div className="recipe-card">
-            <RecipeCard onSubmit={onSubmit} />
-          </div>
-          <div
-            className="recipe-output"
-            style={{
-              whiteSpace: "pre-wrap",
-              fontFamily: "monospace",
-            }}
-          >
-            {recipeText}
+    <div className="app-wrapper">
+      <Navbar />
+      <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+        <div className="container">
+          <div className="recipe-container">
+            <div className="recipe-card">
+              <RecipeCard onSubmit={onSubmit} />
+            </div>
+            <div
+              className="recipe-output"
+              style={{
+                whiteSpace: "pre-wrap",
+                fontFamily: "monospace",
+              }}
+            >
+              {recipeText}
+            </div>
           </div>
         </div>
       </div>
