@@ -1,5 +1,5 @@
 import React from 'react';
-import '../App.css';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom for navigation
 
 const Navbar = () => {
   return (
@@ -9,15 +9,15 @@ const Navbar = () => {
           <span className="logo">TadkaAI</span>
         </div>
         <ul className="nav-links">
-          <li><a href="/" className="active">Home</a></li>
-          <li><a href="/recipe-generator">Recipe Generator</a></li>
-          <li><a href="/ingredient-identifier">Ingredient Identifier</a></li>
-          <li><a href="/ingredient-search">Ingredient Search</a></li>
-          <li><a href="/feedback">Feedback</a></li>
+          <li><Link to="/" className="active">Home</Link></li>
+          <li><Link to="/recipe-generator">Recipe Generator</Link></li>
+          <li><Link to="/ingredient-identifier">Ingredient Identifier</Link></li>
+          <li><Link to="/ingredient-search">Ingredient Search</Link></li>
+          <li><Link to="/feedback">Feedback</Link></li>
         </ul>
       </div>
     </nav>
   );
 };
 
-export default Navbar; 
+export default Navbar;
