@@ -6,21 +6,18 @@ const vision = require("@google-cloud/vision");
 const app = express();
 const port = 3000;
 
-// Middleware
 app.use(cors({
-  origin: "http://localhost:3000", // Allow requests only from the React app
-  credentials: true, // If using cookies or authentication headers
+  origin: "http://localhost:3000", 
+  credentials: true, 
 }));
 
-app.use(express.json()); // To handle JSON request bodies
-app.use(express.json({ limit: "10mb" })); // Adjust "10mb" as needed
-app.use(express.urlencoded({ extended: true, limit: "10mb" })); // For URL-encoded data
+app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// API keys
-const geminiApiKey = "AIzaSyDbm9P0pjCXYeZCeT9N_ukvlevwY5ml5Fc";
+const geminiApiKey = "INSERT HERE";
 const googleAI = new GoogleGenerativeAI(geminiApiKey);
 
-// Gemini AI Configuration
 const geminiModel = googleAI.getGenerativeModel({
   model: "gemini-pro",
   temperature: 0.7,
@@ -28,16 +25,13 @@ const geminiModel = googleAI.getGenerativeModel({
   maxOutputTokens: 2000,
 });
 
-// Google Vision Client
 const visionClient = new vision.ImageAnnotatorClient({
   keyFilename: "../tadkaai-a6e2a028acd4.json",
 });
 
-// SSE Recipe Generator Endpoint
 app.get("/recipestream", (req, res) => {
   const { ingredients, mealType, cuisine, cookingTime, complexity } = req.query;
 
-  // SSE headers
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -82,7 +76,6 @@ async function fetchGeminiMessage(prompt, sendEvent) {
     const response = await geminiModel.generateContent(prompt);
     console.log("[Server] Gemini Response:", JSON.stringify(response, null, 2));
 
-    // Extract candidates
     const candidates = response?.response?.candidates || [];
     if (candidates.length === 0) {
       console.error("No candidates received from Gemini.");
@@ -109,7 +102,6 @@ async function fetchGeminiMessage(prompt, sendEvent) {
   }
 }
 
-// Ingredient Identifier Endpoint
 app.post("/identify-ingredient", async (req, res) => {
   const { imageBase64 } = req.body;
 
@@ -142,7 +134,6 @@ app.post("/identify-ingredient", async (req, res) => {
   }
 });
 
-// Start server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
