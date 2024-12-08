@@ -133,23 +133,32 @@ app.post("/identify-ingredient", async (req, res) => {
 
     // Processing labels
     const labels = result.labelAnnotations || [];
-    const ingredients = labels
-      .filter((label) => label.score > 0.6)
-      .map((label) => label.description);
-
-    if (ingredients.length === 0) {
+    if (labels.length === 0) {
       console.warn("No identifiable ingredients found.");
       return res
         .status(200)
         .json({ message: "No identifiable ingredient found." });
     }
 
-    res.status(200).json({ ingredients });
+    // Sort labels by confidence score
+    const sortedLabels = labels.sort((a, b) => b.score - a.score);
+
+    // Extract the top one or two results
+    const topIngredients = sortedLabels.slice(0, 2).map((label) => ({
+      name: label.description,
+      confidence: label.score,
+    }));
+
+    // Return the top results
+    res.status(200).json({
+      ingredients: topIngredients.map((ingredient) => ingredient.name),
+    });
   } catch (error) {
     console.error("Error identifying ingredient:", error.message);
     res.status(500).json({ error: "Failed to identify ingredient." });
   }
 });
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
