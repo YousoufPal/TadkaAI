@@ -4,6 +4,7 @@ const IngredientIdentifier = () => {
   const [image, setImage] = useState(null);
   const [identifiedIngredient, setIdentifiedIngredient] = useState('');
   const [rawLabels, setRawLabels] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -20,13 +21,17 @@ const IngredientIdentifier = () => {
       const response = await fetch('http://localhost:8000/identify-ingredient', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image }),
+        body: JSON.stringify({ imageBase64: image }),
       });
 
       const data = await response.json();
 
-      setIdentifiedIngredient(data.identifiedIngredient);
-      setRawLabels(data.rawLabels);
+      if (data.ingredients) {
+        setIdentifiedIngredient(data.ingredients.join(', '));
+        setRawLabels(data.ingredients);
+      } else {
+        console.error('Unexpected response structure:', data);
+      }
     } catch (error) {
       console.error('Error identifying ingredient:', error.message);
     }

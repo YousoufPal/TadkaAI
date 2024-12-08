@@ -4,16 +4,17 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const vision = require("@google-cloud/vision");
 
 const app = express();
-const port = 3000;
+const port = 8000;
 
-app.use(cors({
-  origin: "http://localhost:3000", 
-  credentials: true, 
-}));
+app.use(cors());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-app.use(express.json());
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+// Debugging middleware to log request size
+app.use((req, res, next) => {
+  console.log(`Request size: ${req.headers['content-length']} bytes`);
+  next();
+});
 
 const geminiApiKey = "INSERT HERE";
 const googleAI = new GoogleGenerativeAI(geminiApiKey);
@@ -106,22 +107,38 @@ app.post("/identify-ingredient", async (req, res) => {
   const { imageBase64 } = req.body;
 
   if (!imageBase64) {
+    console.error("No image data received.");
     return res.status(400).json({ error: "Image data is required." });
   }
 
-  const imageBuffer = Buffer.from(imageBase64, "base64");
-
   try {
+    // Debugging the image data
+    console.log("Received image data size:", imageBase64.length);
+    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+    const imageBuffer = Buffer.from(base64Data, "base64");
+    console.log("Buffer size after conversion:", imageBuffer.length);
+
+    // Vision API Call
     const [result] = await visionClient.labelDetection({
       image: { content: imageBuffer },
     });
 
+    // Logging Vision API result
+    console.log("Vision API Result:", JSON.stringify(result, null, 2));
+
+    if (result.error) {
+      console.error("Vision API Error:", result.error);
+      return res.status(500).json({ error: result.error.message });
+    }
+
+    // Processing labels
     const labels = result.labelAnnotations || [];
     const ingredients = labels
       .filter((label) => label.score > 0.6)
       .map((label) => label.description);
 
     if (ingredients.length === 0) {
+      console.warn("No identifiable ingredients found.");
       return res
         .status(200)
         .json({ message: "No identifiable ingredient found." });
