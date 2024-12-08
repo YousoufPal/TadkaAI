@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const vision = require("@google-cloud/vision");
+const axios = require("axios");
 
 const app = express();
 const port = 8000;
@@ -10,7 +11,6 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Debugging middleware to log request size
 app.use((req, res, next) => {
   console.log(`Request size: ${req.headers['content-length']} bytes`);
   next();
@@ -18,6 +18,8 @@ app.use((req, res, next) => {
 
 const geminiApiKey = "INSERT HERE";
 const googleAI = new GoogleGenerativeAI(geminiApiKey);
+const UNSPLASH_ACCESS_KEY = "dBZxXF4B71-59PLvL76NaIOAC0nwiGvFbePkvLQKXXs";
+const GOOGLE_PLACES_API_KEY = "AIzaSyDEcLEbhPcOg1LuRMDeubwY6QvuDawlFhc";
 
 const geminiModel = googleAI.getGenerativeModel({
   model: "gemini-pro",
@@ -159,6 +161,51 @@ app.post("/identify-ingredient", async (req, res) => {
   }
 });
 
+app.get("/ingredient-search", async (req, res) => {
+  const { ingredient } = req.query;
+
+  if (!ingredient) {
+    return res.status(400).json({ error: "Ingredient name is required." });
+  }
+
+  try {
+    // Unsplash API Request
+    const unsplashResponse = await axios.get(
+      `https://api.unsplash.com/search/photos`,
+      {
+        params: { query: ingredient, per_page: 5 },
+        headers: { Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}` },
+      }
+    );
+
+    const images = unsplashResponse.data.results.map((image) => ({
+      url: image.urls.small,
+      alt: image.alt_description,
+    }));
+
+    // Google Places API Request
+    const placesResponse = await axios.get(
+      `https://maps.googleapis.com/maps/api/place/textsearch/json`,
+      {
+        params: { query: `${ingredient} retail stores in India`, key: GOOGLE_PLACES_API_KEY },
+      }
+    );
+
+    const places = placesResponse.data.results.map((place) => ({
+      name: place.name,
+      address: place.formatted_address,
+      rating: place.rating || "N/A",
+    }));
+
+    res.status(200).json({
+      images: images || [],
+      places: places || [],
+    });
+    } catch (error) {
+    console.error("Error during ingredient search:", error.message);
+    res.status(500).json({ error: "Failed to fetch ingredient data." });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
