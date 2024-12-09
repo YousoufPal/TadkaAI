@@ -5,15 +5,18 @@ import RecipeGenerator from './components/RecipeGenerator';
 import IngredientIdentifier from './components/IngredientIdentifier'; 
 import IngredientSearch from "./components/IngredientSearch"; 
 import './App.css';
+import HomePage from './components/HomePage';
 
 function App() {
   return (
     <Router>
       <Navbar />
       <Routes>
+        <Route path="/" element={<HomePage />} />  
         <Route path="/recipe-generator" element={<RecipeGenerator />} />
         <Route path="/ingredient-identifier" element={<IngredientIdentifier />} />
         <Route path="/ingredient-search" element={<IngredientSearch />} />
+
       </Routes>
     </Router>
   );
