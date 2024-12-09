@@ -18,8 +18,8 @@ app.use((req, res, next) => {
 
 const geminiApiKey = "INSERT HERE";
 const googleAI = new GoogleGenerativeAI(geminiApiKey);
-const UNSPLASH_ACCESS_KEY = "dBZxXF4B71-59PLvL76NaIOAC0nwiGvFbePkvLQKXXs";
-const GOOGLE_PLACES_API_KEY = "AIzaSyDEcLEbhPcOg1LuRMDeubwY6QvuDawlFhc";
+const UNSPLASH_ACCESS_KEY = "INSERT HERE";
+const GOOGLE_PLACES_API_KEY = "INSERT HERE";
 
 const geminiModel = googleAI.getGenerativeModel({
   model: "gemini-pro",
@@ -114,18 +114,15 @@ app.post("/identify-ingredient", async (req, res) => {
   }
 
   try {
-    // Debugging the image data
     console.log("Received image data size:", imageBase64.length);
     const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
     const imageBuffer = Buffer.from(base64Data, "base64");
     console.log("Buffer size after conversion:", imageBuffer.length);
 
-    // Vision API Call
     const [result] = await visionClient.labelDetection({
       image: { content: imageBuffer },
     });
 
-    // Logging Vision API result
     console.log("Vision API Result:", JSON.stringify(result, null, 2));
 
     if (result.error) {
@@ -133,7 +130,6 @@ app.post("/identify-ingredient", async (req, res) => {
       return res.status(500).json({ error: result.error.message });
     }
 
-    // Processing labels
     const labels = result.labelAnnotations || [];
     if (labels.length === 0) {
       console.warn("No identifiable ingredients found.");
@@ -142,16 +138,13 @@ app.post("/identify-ingredient", async (req, res) => {
         .json({ message: "No identifiable ingredient found." });
     }
 
-    // Sort labels by confidence score
     const sortedLabels = labels.sort((a, b) => b.score - a.score);
 
-    // Extract the top one or two results
     const topIngredients = sortedLabels.slice(0, 2).map((label) => ({
       name: label.description,
       confidence: label.score,
     }));
 
-    // Return the top results
     res.status(200).json({
       ingredients: topIngredients.map((ingredient) => ingredient.name),
     });
@@ -169,7 +162,6 @@ app.get("/ingredient-search", async (req, res) => {
   }
 
   try {
-    // Unsplash API Request
     const unsplashResponse = await axios.get(
       `https://api.unsplash.com/search/photos`,
       {
@@ -183,7 +175,6 @@ app.get("/ingredient-search", async (req, res) => {
       alt: image.alt_description,
     }));
 
-    // Google Places API Request
     const placesResponse = await axios.get(
       `https://maps.googleapis.com/maps/api/place/textsearch/json`,
       {
