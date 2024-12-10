@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom for navigation
+import { NavLink } from 'react-router-dom'; // Use NavLink instead of Link
 
 const Navbar = () => {
   return (
@@ -9,11 +9,47 @@ const Navbar = () => {
           <span className="logo">TadkaAI</span>
         </div>
         <ul className="nav-links">
-          <li><Link to="/" className="active">Home</Link></li>
-          <li><Link to="/recipe-generator">Recipe Generator</Link></li>
-          <li><Link to="/ingredient-identifier">Ingredient Identifier</Link></li>
-          <li><Link to="/ingredient-search">Ingredient Search</Link></li>
-          <li><Link to="/feedback">Feedback</Link></li>
+          <li>
+            <NavLink
+              to="/"
+              className={({ isActive }) => (isActive ? 'active' : '')}
+              end // Ensures the "Home" link is active only on the exact path "/"
+            >
+              Home
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/recipe-generator"
+              className={({ isActive }) => (isActive ? 'active' : '')}
+            >
+              Recipe Generator
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/ingredient-identifier"
+              className={({ isActive }) => (isActive ? 'active' : '')}
+            >
+              Ingredient Identifier
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/ingredient-search"
+              className={({ isActive }) => (isActive ? 'active' : '')}
+            >
+              Ingredient Search
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/feedback"
+              className={({ isActive }) => (isActive ? 'active' : '')}
+            >
+              Feedback
+            </NavLink>
+          </li>
         </ul>
       </div>
     </nav>
