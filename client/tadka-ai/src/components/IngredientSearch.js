@@ -6,11 +6,15 @@ const IngredientSearch = () => {
   const [ingredient, setIngredient] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false); // Track if the user has searched
 
   const handleSearch = async () => {
     setLoading(true);
+    setSearched(true); // Mark as searched when the search button is clicked
     try {
-      const response = await axios.get(`http://localhost:8000/ingredient-search?ingredient=${ingredient}`);
+      const response = await axios.get(
+        `http://localhost:8000/ingredient-search?ingredient=${ingredient}`
+      );
       setResult(response.data);
     } catch (error) {
       console.error("Error fetching ingredient data:", error);
@@ -20,15 +24,10 @@ const IngredientSearch = () => {
 
   return (
     <div className="container mt-5 pt-5">
-      {/* Page Title */}
       <div className="row pt-4">
         <div className="col-12">
           <h2 className="text-center mb-4">Ingredient Search</h2>
         </div>
-      </div>
-
-      {/* Search Input */}
-      <div className="row">
         <div className="col-12 col-md-8 mx-auto">
           <div className="input-group mb-3">
             <input
@@ -93,9 +92,11 @@ const IngredientSearch = () => {
         </div>
       )}
 
-      {/* No Results Message */}
-      {result === null && ingredient && !loading && (
-        <p className="text-center text-muted">No results found for "{ingredient}".</p>
+      {/* No results message */}
+      {searched && !loading && result === null && (
+        <p className="text-center text-muted">
+          No results found for "{ingredient}".
+        </p>
       )}
     </div>
   );
