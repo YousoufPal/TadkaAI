@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
 const IngredientSearch = () => {
   const [ingredient, setIngredient] = useState("");
   const [result, setResult] = useState(null);
@@ -20,11 +19,16 @@ const IngredientSearch = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <div className="row">
+    <div className="container mt-5 pt-5">
+      {/* Page Title */}
+      <div className="row pt-4">
         <div className="col-12">
           <h2 className="text-center mb-4">Ingredient Search</h2>
         </div>
+      </div>
+
+      {/* Search Input */}
+      <div className="row">
         <div className="col-12 col-md-8 mx-auto">
           <div className="input-group mb-3">
             <input
@@ -89,7 +93,7 @@ const IngredientSearch = () => {
         </div>
       )}
 
-      {/* No results message */}
+      {/* No Results Message */}
       {result === null && ingredient && !loading && (
         <p className="text-center text-muted">No results found for "{ingredient}".</p>
       )}
