@@ -6,6 +6,8 @@ import IngredientIdentifier from './components/IngredientIdentifier';
 import IngredientSearch from "./components/IngredientSearch"; 
 import './App.css';
 import HomePage from './components/HomePage';
+import Signup from "./components/Signup";
+import Login from "./components/Login";
 
 function App() {
   return (
@@ -16,6 +18,9 @@ function App() {
         <Route path="/recipe-generator" element={<RecipeGenerator />} />
         <Route path="/ingredient-identifier" element={<IngredientIdentifier />} />
         <Route path="/ingredient-search" element={<IngredientSearch />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
 
       </Routes>
     </Router>
