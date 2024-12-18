@@ -19,11 +19,11 @@ app.use((req, res, next) => {
   next();
 });
 
-const geminiApiKey = "AIzaSyDj-Vi_HmNZJm4ytAshg5sOcmMT8Vcxlgc";
+const geminiApiKey = "Insert Here";
 const googleAI = new GoogleGenerativeAI(geminiApiKey);
-const UNSPLASH_ACCESS_KEY = "dBZxXF4B71-59PLvL76NaIOAC0nwiGvFbePkvLQKXXs";
-const GOOGLE_PLACES_API_KEY = "AIzaSyDEcLEbhPcOg1LuRMDeubwY6QvuDawlFhc";
-const JWT_SECRET = "your_secret_key_here";
+const UNSPLASH_ACCESS_KEY = "Insert here";
+const GOOGLE_PLACES_API_KEY = "Insert here";
+const JWT_SECRET = "Insert here";
 
 const geminiModel = googleAI.getGenerativeModel({
   model: "gemini-pro",
@@ -36,7 +36,6 @@ const visionClient = new vision.ImageAnnotatorClient({
   keyFilename: "../tadkaai-a6e2a028acd4.json",
 });
 
-// MongoDB setup
 mongoose.connect("mongodb://localhost:27017/tadkaai", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -49,7 +48,6 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
-// Middleware to verify JWT
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
@@ -64,7 +62,6 @@ const authenticate = (req, res, next) => {
   }
 };
 
-// Public routes (Signup and Login)
 app.post("/signup", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -133,7 +130,6 @@ async function fetchGeminiMessage(prompt, sendEvent) {
 }
 
 
-// Protected routes
 app.get("/recipestream", (req, res) => {
   const { ingredients, mealType, cuisine, cookingTime, complexity } = req.query;
 
