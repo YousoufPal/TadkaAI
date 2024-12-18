@@ -3,6 +3,9 @@ const cors = require("cors");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const vision = require("@google-cloud/vision");
 const axios = require("axios");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 
 const app = express();
 const port = 8000;
@@ -16,10 +19,11 @@ app.use((req, res, next) => {
   next();
 });
 
-const geminiApiKey = "INSERT HERE";
+const geminiApiKey = "AIzaSyDj-Vi_HmNZJm4ytAshg5sOcmMT8Vcxlgc";
 const googleAI = new GoogleGenerativeAI(geminiApiKey);
-const UNSPLASH_ACCESS_KEY = "INSERT HERE";
-const GOOGLE_PLACES_API_KEY = "INSERT HERE";
+const UNSPLASH_ACCESS_KEY = "dBZxXF4B71-59PLvL76NaIOAC0nwiGvFbePkvLQKXXs";
+const GOOGLE_PLACES_API_KEY = "AIzaSyDEcLEbhPcOg1LuRMDeubwY6QvuDawlFhc";
+const JWT_SECRET = "your_secret_key_here";
 
 const geminiModel = googleAI.getGenerativeModel({
   model: "gemini-pro",
@@ -32,6 +36,104 @@ const visionClient = new vision.ImageAnnotatorClient({
   keyFilename: "../tadkaai-a6e2a028acd4.json",
 });
 
+// MongoDB setup
+mongoose.connect("mongodb://localhost:27017/tadkaai", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const userSchema = new mongoose.Schema({
+  username: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+});
+
+const User = mongoose.model("User", userSchema);
+
+// Middleware to verify JWT
+const authenticate = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: "Invalid token" });
+  }
+};
+
+// Public routes (Signup and Login)
+app.post("/signup", async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: "Username and password are required" });
+  }
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ username, password: hashedPassword });
+    await newUser.save();
+    res.status(201).json({ message: "User created successfully" });
+  } catch (error) {
+    if (error.code === 11000) {
+      res.status(400).json({ error: "Username already exists" });
+    } else {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: "Username and password are required" });
+  }
+  try {
+    const user = await User.findOne({ username });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
+    res.status(200).json({ message: "Login successful", token });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+async function fetchGeminiMessage(prompt, sendEvent) {
+  try {
+    const response = await geminiModel.generateContent(prompt);
+    console.log("[Server] Gemini Response:", JSON.stringify(response, null, 2));
+
+    const candidates = response?.response?.candidates || [];
+    if (candidates.length === 0) {
+      console.error("No candidates received from Gemini.");
+      sendEvent({
+        action: "error",
+        message: "No valid response from Gemini AI.",
+      });
+      return;
+    }
+
+    candidates.forEach((candidate) => {
+      const content = candidate?.content;
+      if (content) {
+        sendEvent({ action: "chunk", data: content });
+      } else {
+        console.warn("Candidate does not have content:", candidate);
+      }
+    });
+
+    sendEvent({ action: "close" });
+  } catch (error) {
+    console.error("Error fetching Gemini message:", error.message);
+    sendEvent({ action: "error", message: error.message });
+  }
+}
+
+
+// Protected routes
 app.get("/recipestream", (req, res) => {
   const { ingredients, mealType, cuisine, cookingTime, complexity } = req.query;
 
@@ -73,37 +175,6 @@ app.get("/recipestream", (req, res) => {
 
   req.on("close", () => res.end());
 });
-
-async function fetchGeminiMessage(prompt, sendEvent) {
-  try {
-    const response = await geminiModel.generateContent(prompt);
-    console.log("[Server] Gemini Response:", JSON.stringify(response, null, 2));
-
-    const candidates = response?.response?.candidates || [];
-    if (candidates.length === 0) {
-      console.error("No candidates received from Gemini.");
-      sendEvent({
-        action: "error",
-        message: "No valid response from Gemini AI.",
-      });
-      return;
-    }
-
-    candidates.forEach((candidate) => {
-      const content = candidate?.content;
-      if (content) {
-        sendEvent({ action: "chunk", data: content });
-      } else {
-        console.warn("Candidate does not have content:", candidate);
-      }
-    });
-
-    sendEvent({ action: "close" });
-  } catch (error) {
-    console.error("Error fetching Gemini message:", error.message);
-    sendEvent({ action: "error", message: error.message });
-  }
-}
 
 app.post("/identify-ingredient", async (req, res) => {
   const { imageBase64 } = req.body;
@@ -192,11 +263,12 @@ app.get("/ingredient-search", async (req, res) => {
       images: images || [],
       places: places || [],
     });
-    } catch (error) {
+  } catch (error) {
     console.error("Error during ingredient search:", error.message);
     res.status(500).json({ error: "Failed to fetch ingredient data." });
   }
 });
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
