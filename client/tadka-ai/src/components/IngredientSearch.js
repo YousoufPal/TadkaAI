@@ -1,25 +1,50 @@
 import React, { useState } from "react";
-import axios from "axios";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { getToken } from "../services/authService"; // Import the getToken function
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const IngredientSearch = () => {
   const [ingredient, setIngredient] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false); // Track if the user has searched
+  const [searched, setSearched] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSearch = async () => {
     setLoading(true);
-    setSearched(true); // Mark as searched when the search button is clicked
+    setSearched(true);
+    setErrorMessage(""); // Clear any existing error messages
+
     try {
-      const response = await axios.get(
-        `http://localhost:8000/ingredient-search?ingredient=${ingredient}`
+      const token = getToken(); // Retrieve the token using getToken
+      if (!token) {
+        throw new Error("No token found. User might not be authenticated.");
+      }
+
+      const response = await fetch(
+        `http://localhost:8000/ingredient-search?ingredient=${ingredient}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the header
+            "Content-Type": "application/json",
+          },
+        }
       );
-      setResult(response.data);
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setResult(data);
+      } else {
+        console.error("Unexpected response structure:", data);
+        setErrorMessage("Failed to fetch ingredient data. Please try again.");
+      }
     } catch (error) {
-      console.error("Error fetching ingredient data:", error);
+      console.error("Error fetching ingredient data:", error.message);
+      setErrorMessage("Failed to fetch ingredient data. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -48,6 +73,13 @@ const IngredientSearch = () => {
         </div>
       </div>
 
+      {/* Display Error Message */}
+      {errorMessage && (
+        <div className="alert alert-danger text-center" role="alert">
+          {errorMessage}
+        </div>
+      )}
+
       {/* Results */}
       {result && (
         <div className="row">
@@ -55,6 +87,7 @@ const IngredientSearch = () => {
             <div className="card mb-3">
               <div className="card-header">Ingredient Information</div>
               <div className="card-body">
+                {/* Images */}
                 <h5 className="card-title">Images</h5>
                 <div className="row">
                   {result.images && result.images.length > 0 ? (
@@ -72,6 +105,7 @@ const IngredientSearch = () => {
                   )}
                 </div>
 
+                {/* Places */}
                 <h5 className="card-title mt-4">Places</h5>
                 <ul className="list-group">
                   {result.places && result.places.length > 0 ? (

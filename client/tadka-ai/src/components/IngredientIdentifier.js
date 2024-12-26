@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { getToken } from "../services/authService"; // Import the getToken function
+
 
 const IngredientIdentifier = () => {
   const [image, setImage] = useState(null);
@@ -18,9 +20,15 @@ const IngredientIdentifier = () => {
 
   const identifyIngredient = async () => {
     try {
+      const token = getToken(); // Retrieve the token using getToken
+      if (!token) {
+        throw new Error("No token found. User might not be authenticated.");
+      }
       const response = await fetch('http://localhost:8000/identify-ingredient', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          "Authorization": `Bearer ${token}`, // Add the Authorization header 
+          'Content-Type': 'application/json' },
         body: JSON.stringify({ imageBase64: image }),
       });
 
@@ -31,9 +39,13 @@ const IngredientIdentifier = () => {
         setRawLabels(data.ingredients);
       } else {
         console.error('Unexpected response structure:', data);
+        setErrorMessage('Could not identify ingredient.');
+
       }
     } catch (error) {
       console.error('Error identifying ingredient:', error.message);
+      setErrorMessage('Failed to identify ingredient. Please try again.');
+
     }
   };
 
