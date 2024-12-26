@@ -6,6 +6,9 @@ const axios = require("axios");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const admin = require("firebase-admin");
+const serviceAccount = require("../firebaseServiceAccountKey.json");
+
 
 const app = express();
 const port = 8000;
@@ -21,7 +24,7 @@ app.use((req, res, next) => {
 
 const geminiApiKey = "Insert Here";
 const googleAI = new GoogleGenerativeAI(geminiApiKey);
-const UNSPLASH_ACCESS_KEY = "Insert here";
+const UNSPLASH_ACCESS_KEY = "Insert Here";
 const GOOGLE_PLACES_API_KEY = "Insert here";
 const JWT_SECRET = "Insert here";
 
@@ -36,6 +39,12 @@ const visionClient = new vision.ImageAnnotatorClient({
   keyFilename: "../tadkaai-a6e2a028acd4.json",
 });
 
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+
 mongoose.connect("mongodb://localhost:27017/tadkaai", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -48,19 +57,31 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
-const authenticate = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+const authenticate = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    console.error("Authorization header missing.");
+    return res.status(401).json({ error: "Unauthorized: No token provided" });
   }
+
+  const token = authHeader.split(" ")[1]; // Expecting 'Bearer <token>'
+  if (!token) {
+    console.error("Authorization header malformed:", authHeader);
+    return res.status(401).json({ error: "Unauthorized: Malformed token" });
+  }
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    console.log("Decoded Token:", decodedToken); // Logs details of the decoded token
+    req.user = decodedToken;
     next();
   } catch (error) {
-    res.status(401).json({ error: "Invalid token" });
+    console.error("Error verifying token:", error.message);
+    return res.status(401).json({ error: "Unauthorized: Invalid token" });
   }
 };
+
 
 app.post("/signup", async (req, res) => {
   const { username, password } = req.body;
@@ -130,7 +151,7 @@ async function fetchGeminiMessage(prompt, sendEvent) {
 }
 
 
-app.get("/recipestream", (req, res) => {
+app.get("/recipestream", authenticate, (req, res) => {
   const { ingredients, mealType, cuisine, cookingTime, complexity } = req.query;
 
   res.setHeader("Content-Type", "text/event-stream");
@@ -172,7 +193,7 @@ app.get("/recipestream", (req, res) => {
   req.on("close", () => res.end());
 });
 
-app.post("/identify-ingredient", async (req, res) => {
+app.post("/identify-ingredient", authenticate, async (req, res) => {
   const { imageBase64 } = req.body;
 
   if (!imageBase64) {
@@ -221,7 +242,7 @@ app.post("/identify-ingredient", async (req, res) => {
   }
 });
 
-app.get("/ingredient-search", async (req, res) => {
+app.get("/ingredient-search", authenticate, async (req, res) => {
   const { ingredient } = req.query;
 
   if (!ingredient) {
@@ -229,6 +250,7 @@ app.get("/ingredient-search", async (req, res) => {
   }
 
   try {
+    // Fetch images from Unsplash
     const unsplashResponse = await axios.get(
       `https://api.unsplash.com/search/photos`,
       {
@@ -239,19 +261,23 @@ app.get("/ingredient-search", async (req, res) => {
 
     const images = unsplashResponse.data.results.map((image) => ({
       url: image.urls.small,
-      alt: image.alt_description,
+      alt: image.alt_description || "Ingredient image",
     }));
 
+    // Fetch places from Google Places
     const placesResponse = await axios.get(
       `https://maps.googleapis.com/maps/api/place/textsearch/json`,
       {
-        params: { query: `${ingredient} retail stores in India`, key: GOOGLE_PLACES_API_KEY },
+        params: {
+          query: `${ingredient} retail stores in India`,
+          key: GOOGLE_PLACES_API_KEY,
+        },
       }
     );
 
     const places = placesResponse.data.results.map((place) => ({
       name: place.name,
-      address: place.formatted_address,
+      address: place.formatted_address || "Address not available",
       rating: place.rating || "N/A",
     }));
 
@@ -261,9 +287,16 @@ app.get("/ingredient-search", async (req, res) => {
     });
   } catch (error) {
     console.error("Error during ingredient search:", error.message);
-    res.status(500).json({ error: "Failed to fetch ingredient data." });
+
+    // Return partial or fallback data
+    res.status(500).json({
+      error: "Failed to fetch ingredient data.",
+      details: error.message,
+    });
   }
 });
+
+
 
 
 app.listen(port, () => {
