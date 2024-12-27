@@ -61,7 +61,10 @@ const RecipeGenerator = () => {
     console.log("Auth Token on Save:", token);
     console.log("Recipe Text on Save:", recipeText);
   
-
+    if (!recipeText || !recipeText.trim().length) {
+      alert("Cannot save an empty recipe. Please generate a recipe first.");
+      return;
+    }
   
     const payload = { recipeText: recipeText.trim() }; // Use `recipeText` key
     console.log("Payload to Save API:", payload);
