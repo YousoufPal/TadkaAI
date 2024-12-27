@@ -22,7 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const geminiApiKey = "Insert Here";
+const geminiApiKey = "AIzaSyDj-Vi_HmNZJm4ytAshg5sOcmMT8Vcxlgc";
 const googleAI = new GoogleGenerativeAI(geminiApiKey);
 const UNSPLASH_ACCESS_KEY = "Insert Here";
 const GOOGLE_PLACES_API_KEY = "Insert here";
@@ -54,6 +54,14 @@ const userSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true },
   password: { type: String, required: true },
 });
+
+const savedRecipeSchema = new mongoose.Schema({
+  userId: { type: String, required: true },
+  recipeText: { type: String, required: true },
+});
+
+const SavedRecipe = mongoose.model("SavedRecipe", savedRecipeSchema);
+
 
 const User = mongoose.model("User", userSchema);
 
@@ -151,7 +159,7 @@ async function fetchGeminiMessage(prompt, sendEvent) {
 }
 
 
-app.get("/recipestream", authenticate, (req, res) => {
+app.get("/recipestream", (req, res) => {
   const { ingredients, mealType, cuisine, cookingTime, complexity } = req.query;
 
   res.setHeader("Content-Type", "text/event-stream");
@@ -296,6 +304,26 @@ app.get("/ingredient-search", authenticate, async (req, res) => {
   }
 });
 
+app.post("/save-recipe", authenticate, async (req, res) => {
+  const { recipeText } = req.body;
+
+  if (!recipeText) {
+    return res.status(400).json({ error: "Recipe text is required" });
+  }
+
+  try {
+    const newRecipe = new SavedRecipe({
+      userId: req.user.uid, // Use the UID from Firebase token
+      recipeText,
+    });
+
+    await newRecipe.save();
+    res.status(201).json({ message: "Recipe saved successfully" });
+  } catch (error) {
+    console.error("Error saving recipe:", error.message);
+    res.status(500).json({ error: "Failed to save recipe" });
+  }
+});
 
 
 
