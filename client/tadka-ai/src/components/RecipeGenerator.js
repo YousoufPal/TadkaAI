@@ -17,7 +17,7 @@ const RecipeGenerator = () => {
       complexity,
     };
 
-    // Assuming your backend API is still active to generate a recipe
+    console.log("Recipe Data for Generation:", recipeData); // Debugging
     fetchRecipeData(recipeData);
   };
 
@@ -28,10 +28,16 @@ const RecipeGenerator = () => {
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      console.log("Received SSE Data:", data); // Debugging SSE response
 
       if (data.action === 'chunk') {
-        setRecipeText((prev) => prev + "\n" + data.chunk);
+        setRecipeText((prev) => {
+          const updatedText = prev + "\n" + data.chunk;
+          console.log("Updated Recipe Text:", updatedText); // Debugging updated text
+          return updatedText;
+        });
       } else if (data.action === 'close') {
+        console.log("SSE Connection Closed"); // Debugging SSE close
         eventSource.close();
       } else if (data.action === 'error') {
         console.error("Error received from server:", data.message);
@@ -44,6 +50,47 @@ const RecipeGenerator = () => {
       eventSource.close();
     };
   };
+
+  const saveRecipe = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please log in to access this feature.");
+      return;
+    }
+  
+    console.log("Auth Token on Save:", token);
+    console.log("Recipe Text on Save:", recipeText);
+  
+
+  
+    const payload = { recipeText: recipeText.trim() }; // Use `recipeText` key
+    console.log("Payload to Save API:", payload);
+  
+    try {
+      const response = await fetch("http://localhost:8000/save-recipe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const data = await response.json();
+      console.log("Save Recipe API Response:", data);
+  
+      if (response.ok) {
+        alert("Recipe saved successfully!");
+      } else {
+        alert(data.error || "Failed to save recipe.");
+      }
+    } catch (error) {
+      console.error("Error saving recipe:", error);
+      alert("An error occurred while saving the recipe.");
+    }
+  };
+  
+
 
   return (
     <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
@@ -129,6 +176,14 @@ const RecipeGenerator = () => {
               onClick={handleSubmit}
             >
               Generate Recipe
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-success w-100 mt-3"
+              onClick={saveRecipe}
+            >
+              Save Recipe
             </button>
           </div>
           <div
