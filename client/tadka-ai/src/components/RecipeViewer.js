@@ -15,12 +15,13 @@ const RecipeViewer = () => {
       }
 
       try {
-        const response = await fetch("http://localhost:8000/saved-recipes", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch("http://localhost:8000/get-saved-recipes", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          
 
         const data = await response.json();
         if (response.ok) {
