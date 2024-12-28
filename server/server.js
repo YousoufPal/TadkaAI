@@ -22,7 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const geminiApiKey = "AIzaSyDj-Vi_HmNZJm4ytAshg5sOcmMT8Vcxlgc";
+const geminiApiKey = "Insert Here";
 const googleAI = new GoogleGenerativeAI(geminiApiKey);
 const UNSPLASH_ACCESS_KEY = "Insert Here";
 const GOOGLE_PLACES_API_KEY = "Insert here";
@@ -325,6 +325,15 @@ app.post("/save-recipe", authenticate, async (req, res) => {
   }
 });
 
+app.get("/get-saved-recipes", authenticate, async (req, res) => {
+  try {
+    const recipes = await SavedRecipe.find({ userId: req.user.uid });
+    res.status(200).json({ recipes });
+  } catch (error) {
+    console.error("Error fetching saved recipes:", error.message);
+    res.status(500).json({ error: "Failed to fetch recipes" });
+  }
+});
 
 
 app.listen(port, () => {
