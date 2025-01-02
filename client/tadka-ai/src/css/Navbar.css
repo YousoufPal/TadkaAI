@@ -1,0 +1,100 @@
+/* Navbar container styles */
+.navbar {
+    background-color: #f7f7f7;
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* Logo styling */
+  .navbar-logo img {
+    height: 150px;
+    cursor: pointer;
+  }
+  
+  /* Links */
+  .nav-links {
+    list-style-type: none;
+    display: flex;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-links li a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-links li a:hover,
+  .nav-links li a.active {
+    color: #ff5722;
+  }
+  
+  /* Auth buttons container */
+  .auth-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  /* Button styling */
+  .btn {
+    padding: 8px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Login button */
+  .login-btn {
+    background-color: #ff5722;
+    color: white;
+  }
+  
+  .login-btn:hover {
+    background-color: #e64a19;
+  }
+  
+  /* Sign up button */
+  .signup-btn {
+    background-color: #2196f3;
+    color: white;
+  }
+  
+  .signup-btn:hover {
+    background-color: #1976d2;
+  }
+  
+  /* Logout button */
+  .logout-btn {
+    background-color: #757575;
+    color: white;
+  }
+  
+  .logout-btn:hover {
+    background-color: #616161;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none; /* Hide links on smaller screens */
+    }
+  
+    .auth-buttons {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  
+    .navbar {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+  
