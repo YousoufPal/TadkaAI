@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { isAuthenticated, removeToken } from "../services/authService";
+import "../css/Navbar.css";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -13,8 +14,8 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <div className="navbar-brand">
-          <span className="logo">TadkaAI</span>
+        <div className="navbar-logo">
+          <img src={require("../assets/logo.jpg")} alt="TadkaAI Logo" />
         </div>
         <ul className="nav-links">
           <li>
@@ -66,35 +67,23 @@ const Navbar = () => {
               Feedback
             </NavLink>
           </li>
-
-          {/* Add Login/Signup or Logout */}
+        </ul>
+        <div className="auth-buttons">
           {!isAuthenticated() ? (
             <>
-              <li>
-                <NavLink
-                  to="/login"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
-                  Login
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/signup"
-                  className={({ isActive }) => (isActive ? "active" : "")}
-                >
-                  Sign Up
-                </NavLink>
-              </li>
+              <button className="btn login-btn" onClick={() => navigate("/login")}>
+                Login
+              </button>
+              <button className="btn signup-btn" onClick={() => navigate("/signup")}>
+                Sign Up
+              </button>
             </>
           ) : (
-            <li>
-              <button onClick={handleLogout} className="logout-btn">
-                Logout
-              </button>
-            </li>
+            <button className="btn logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
           )}
-        </ul>
+        </div>
       </div>
     </nav>
   );
