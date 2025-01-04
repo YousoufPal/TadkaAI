@@ -1,100 +1,160 @@
-/* Navbar container styles */
 .navbar {
-    background-color: #f7f7f7;
-    padding: 10px 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #ffe5b4; 
+    padding: 10px 20px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-  
-  /* Logo styling */
-  .navbar-logo img {
-    height: 150px;
+    border-bottom: 2px solid #ff5722; 
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+.navbar-logo {
+    margin-right: auto;
+}
+
+.navbar-logo img {
+    height: 70px; 
     cursor: pointer;
-  }
-  
-  /* Links */
-  .nav-links {
+}
+
+.nav-links {
     list-style-type: none;
     display: flex;
-    gap: 20px;
+    gap: 10px; 
     margin: 0;
     padding: 0;
-  }
-  
-  .nav-links li a {
+    flex-wrap: nowrap;
+}
+
+.nav-links li a {
     text-decoration: none;
     color: #333;
-    font-size: 16px;
-    transition: color 0.3s ease;
-  }
-  
-  .nav-links li a:hover,
-  .nav-links li a.active {
-    color: #ff5722;
-  }
-  
-  /* Auth buttons container */
-  .auth-buttons {
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.3s ease, background-color 0.3s ease;
+    padding: 5px 8px;
+    border-radius: 4px;
+}
+
+.nav-links li a:hover,
+.nav-links li a.active {
+    color: #fff;
+    background-color: #ff5722;
+}
+
+/* Auth buttons container */
+.auth-buttons {
     display: flex;
-    gap: 10px;
-  }
-  
-  /* Button styling */
-  .btn {
-    padding: 8px 15px;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+/* Button styling */
+.btn {
+    padding: 6px 10px;
     font-size: 14px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-  }
-  
-  /* Login button */
-  .login-btn {
+    color: white;
+}
+
+/* Login button */
+.login-btn {
     background-color: #ff5722;
-    color: white;
-  }
-  
-  .login-btn:hover {
+}
+
+.login-btn:hover {
     background-color: #e64a19;
-  }
-  
-  /* Sign up button */
-  .signup-btn {
+}
+
+/* Sign up button */
+.signup-btn {
     background-color: #2196f3;
-    color: white;
-  }
-  
-  .signup-btn:hover {
+}
+
+.signup-btn:hover {
     background-color: #1976d2;
-  }
-  
-  /* Logout button */
-  .logout-btn {
+}
+
+/* Logout button */
+.logout-btn {
     background-color: #757575;
-    color: white;
-  }
-  
-  .logout-btn:hover {
+}
+
+.logout-btn:hover {
     background-color: #616161;
-  }
-  
-  /* Responsive design */
-  @media (max-width: 768px) {
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
     .nav-links {
-      display: none; /* Hide links on smaller screens */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
     }
-  
+
     .auth-buttons {
-      flex-wrap: wrap;
-      justify-content: center;
+        justify-content: center;
     }
-  
+
     .navbar {
-      flex-direction: column;
-      text-align: center;
+        flex-direction: column;
+        text-align: center;
     }
-  }
+}
+
+/* Dropdown styles */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-toggle {
+    cursor: pointer;
+    padding: 5px 8px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-toggle:hover {
+    background-color: #ff5722;
+    color: #fff;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #ffe5b4;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    list-style: none;
+    padding: 0;
+    z-index: 1000;
+    min-width: 150px;
+}
+
+.dropdown-menu li {
+    padding: 8px 12px;
+}
+
+.dropdown-menu li a {
+    color: #333;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-menu li a:hover {
+    background-color: #ff5722;
+    color: #fff;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
   
