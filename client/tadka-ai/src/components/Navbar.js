@@ -14,7 +14,7 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-logo">
-          <img src={require("../assets/logo.jpg")} alt="TadkaAI Logo" />
+          <img src={require("../assets/logo.png")} alt="TadkaAI Logo" />
         </div>
         <ul className="nav-links">
           <li>
