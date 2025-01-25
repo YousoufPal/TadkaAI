@@ -1,64 +1,75 @@
+/* Navbar container */
 .navbar {
-    background-color: #ffe5b4; 
-    padding: 10px 20px; 
+    background-color: #ffe5b4; /* Light peach background */
+    padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #ff5722; 
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    border-bottom: 2px solid #ff5722; /* Vibrant orange border */
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+    overflow: hidden;
 }
 
+/* Logo container */
 .navbar-logo {
     margin-right: auto;
 }
 
 .navbar-logo img {
-    height: 70px; 
+    height: 90px; /* Bigger height */
+    max-width: 160px; /* Prevent it from being too wide */
+    object-fit: contain; /* Maintain aspect ratio */
     cursor: pointer;
+    transition: transform 0.3s ease; /* Smooth hover effect */
 }
 
+.navbar-logo img:hover {
+    transform: scale(1.1); /* Slight zoom-in on hover */
+}
+
+/* Navigation links */
 .nav-links {
     list-style-type: none;
     display: flex;
-    gap: 10px; 
+    gap: 12px; /* Increased spacing between links */
     margin: 0;
     padding: 0;
-    flex-wrap: nowrap;
+    align-items: center; /* Align items centrally */
 }
 
 .nav-links li a {
     text-decoration: none;
-    color: #333;
-    font-size: 15px;
+    color: #333; /* Neutral link color */
+    font-size: 16px; /* Slightly larger font size */
     font-weight: 500;
-    transition: color 0.3s ease, background-color 0.3s ease;
-    padding: 5px 8px;
+    padding: 6px 10px;
     border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
 .nav-links li a:hover,
 .nav-links li a.active {
     color: #fff;
-    background-color: #ff5722;
+    background-color: #ff5722; /* Vibrant orange background for active/hover */
 }
 
-/* Auth buttons container */
+/* Authentication buttons container */
 .auth-buttons {
     display: flex;
-    gap: 8px;
+    gap: 10px; /* Increased spacing between buttons */
+    align-items: center;
     flex-wrap: nowrap;
 }
 
 /* Button styling */
 .btn {
-    padding: 6px 10px;
-    font-size: 14px;
+    padding: 8px 14px; /* Larger padding for better clickability */
+    font-size: 15px;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
     color: white;
 }
 
@@ -92,69 +103,25 @@
 /* Responsive design */
 @media (max-width: 768px) {
     .nav-links {
-        display: flex;
-        flex-direction: column;
+        flex-direction: column; /* Stack links vertically */
         align-items: center;
-        gap: 10px;
+        gap: 12px; /* Adjust spacing */
+        margin-top: 10px;
     }
 
     .auth-buttons {
+        margin-top: 10px;
         justify-content: center;
     }
 
     .navbar {
-        flex-direction: column;
+        flex-direction: column; /* Stack everything vertically */
         text-align: center;
     }
-}
 
-/* Dropdown styles */
-.dropdown {
-    position: relative;
-}
-
-.dropdown-toggle {
-    cursor: pointer;
-    padding: 5px 8px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
-
-.dropdown-toggle:hover {
-    background-color: #ff5722;
-    color: #fff;
-}
-
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: #ffe5b4;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    list-style: none;
-    padding: 0;
-    z-index: 1000;
-    min-width: 150px;
-}
-
-.dropdown-menu li {
-    padding: 8px 12px;
-}
-
-.dropdown-menu li a {
-    color: #333;
-    text-decoration: none;
-    display: block;
-}
-
-.dropdown-menu li a:hover {
-    background-color: #ff5722;
-    color: #fff;
-}
-
-.dropdown:hover .dropdown-menu {
-    display: block;
+    .navbar-logo img {
+        height: 70px; /* Resize logo on smaller screens */
+        max-width: 140px;
+    }
 }
   
