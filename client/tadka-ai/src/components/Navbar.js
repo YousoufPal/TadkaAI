@@ -1,7 +1,6 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { isAuthenticated, removeToken } from "../services/authService";
-import "../css/Navbar.css";
 
 const Navbar = () => {
   const navigate = useNavigate();
